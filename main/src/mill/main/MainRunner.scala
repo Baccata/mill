@@ -61,7 +61,6 @@ class MainRunner(val config: ammonite.main.Cli.Config,
 
 
   override def runScript(scriptPath: Path, scriptArgs: List[String]) = {
-    println(s"running script $scriptPath")
     watchLoop2(
       isRepl = false,
       printing = true,
@@ -138,11 +137,6 @@ class MainRunner(val config: ammonite.main.Cli.Config,
         .getOrElse(config.wd.toNIO)
       val literalPath = pprint.Util.literalize(path.toString)
       val external = !(path.compareTo(config.wd.toNIO) == 0)
-      locally {
-        import scala.reflect.runtime.universe._
-        val bm = typeOf[BaseModule]
-        val d = bm.decls.foreach(println)
-      }
       val top = s"""
         |package ${pkgName.head.encoded}
         |package ${Util.encodeScalaSourcePath(pkgName.tail)}
