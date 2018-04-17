@@ -1,7 +1,5 @@
 package mill.main
 
-import java.io.{ByteArrayOutputStream, PrintStream}
-
 import ammonite.ops._
 import mill.util.ScriptTestSuite
 import utest._

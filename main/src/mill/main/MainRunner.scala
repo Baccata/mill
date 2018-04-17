@@ -26,17 +26,18 @@ class MainRunner(val config: ammonite.main.Cli.Config,
   extends ammonite.MainRunner(
     config, outprintStream, errPrintStream,
     stdIn, outprintStream, errPrintStream
-  ){
+  ) {
 
-  var stateCache  = stateCache0
+  var stateCache = stateCache0
 
   override def watchAndWait(watched: Seq[(Path, Long)]) = {
     printInfo(s"Watching for changes to ${watched.length} files... (Ctrl-C to exit)")
-    def statAll() = watched.forall{ case (file, lastMTime) =>
+
+    def statAll() = watched.forall { case (file, lastMTime) =>
       Interpreter.pathSignature(file) == lastMTime
     }
 
-    while(statAll()) Thread.sleep(100)
+    while (statAll()) Thread.sleep(100)
   }
 
   /**
@@ -51,14 +52,15 @@ class MainRunner(val config: ammonite.main.Cli.Config,
 
     val success = handleWatchRes(result, printing)
     if (!config.watch) success
-    else{
+    else {
       watchAndWait(watched())
       watchLoop2(isRepl, printing, run)
     }
   }
 
 
-  override def runScript(scriptPath: Path, scriptArgs: List[String]) =
+  override def runScript(scriptPath: Path, scriptArgs: List[String]) = {
+    println(s"running script $scriptPath")
     watchLoop2(
       isRepl = false,
       printing = true,
@@ -81,7 +83,7 @@ class MainRunner(val config: ammonite.main.Cli.Config,
           env
         )
 
-        result match{
+        result match {
           case Res.Success(data) =>
             val (eval, evalWatches, res) = data
 
@@ -102,6 +104,7 @@ class MainRunner(val config: ammonite.main.Cli.Config,
         }
       }
     )
+}
 
   override def handleWatchRes[T](res: Res[T], printing: Boolean) = {
     res match{
