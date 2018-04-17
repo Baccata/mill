@@ -19,10 +19,7 @@ abstract class ScriptTestSuite(fork: Boolean) extends TestSuite{
     stdOutErr, stdOutErr, stdIn, None, Map.empty
   )
   def eval(s: String*) = {
-    if (!fork) {
-      println("NOT FORKING")
-      runner.runScript(workspacePath / buildPath , s.toList)
-    }
+    if (!fork) runner.runScript(workspacePath / buildPath , s.toList)
     else{
       try {
         %(home / "mill-release", "-i", s)(wd)

@@ -6,6 +6,7 @@ import ammonite.interp.{Interpreter, Preprocessor}
 import ammonite.ops.Path
 import ammonite.util.Util.CodeSource
 import ammonite.util._
+import mill.define.BaseModule
 import mill.eval.{Evaluator, PathRef}
 import mill.util.PrintLogger
 
@@ -137,6 +138,11 @@ class MainRunner(val config: ammonite.main.Cli.Config,
         .getOrElse(config.wd.toNIO)
       val literalPath = pprint.Util.literalize(path.toString)
       val external = !(path.compareTo(config.wd.toNIO) == 0)
+      locally {
+        import scala.reflect.runtime.universe._
+        val bm = typeOf[BaseModule]
+        val d = bm.decls.foreach(println)
+      }
       val top = s"""
         |package ${pkgName.head.encoded}
         |package ${Util.encodeScalaSourcePath(pkgName.tail)}
