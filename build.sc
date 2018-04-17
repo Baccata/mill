@@ -378,28 +378,29 @@ def gitHead = T.input{
 }
 
 def publishVersion = T.input{
-  val tag =
-    try Option(
-      %%('git, 'describe, "--exact-match", "--tags", gitHead())(pwd).out.string.trim()
-    )
-    catch{case e => None}
-
-  val dirtySuffix = %%('git, 'diff)(pwd).out.string.trim() match{
-    case "" => ""
-    case s => "-DIRTY" + Integer.toHexString(s.hashCode)
-  }
-
-  tag match{
-    case Some(t) => (t, t)
-    case None =>
-      val latestTaggedVersion = %%('git, 'describe, "--abbrev=0", "--tags")(pwd).out.trim
-
-      val commitsSinceLastTag =
-        %%('git, "rev-list", gitHead(), "--count")(pwd).out.trim.toInt -
-        %%('git, "rev-list", latestTaggedVersion, "--count")(pwd).out.trim.toInt
-
-      (latestTaggedVersion, s"$latestTaggedVersion-$commitsSinceLastTag-${gitHead().take(6)}$dirtySuffix")
-  }
+//  val tag =
+//    try Option(
+//      %%('git, 'describe, "--exact-match", "--tags", gitHead())(pwd).out.string.trim()
+//    )
+//    catch{case e => None}
+//
+//  val dirtySuffix = %%('git, 'diff)(pwd).out.string.trim() match{
+//    case "" => ""
+//    case s => "-DIRTY" + Integer.toHexString(s.hashCode)
+//  }
+//
+//  tag match{
+//    case Some(t) => (t, t)
+//    case None =>
+//      val latestTaggedVersion = %%('git, 'describe, "--abbrev=0", "--tags")(pwd).out.trim
+//
+//      val commitsSinceLastTag =
+//        %%('git, "rev-list", gitHead(), "--count")(pwd).out.trim.toInt -
+//        %%('git, "rev-list", latestTaggedVersion, "--count")(pwd).out.trim.toInt
+//
+//      (latestTaggedVersion, s"$latestTaggedVersion-$commitsSinceLastTag-${gitHead().take(6)}$dirtySuffix")
+//  }
+  ("0.1.7", "baccata-wip")
 }
 
 def uploadToGithub(authKey: String) = T.command{
