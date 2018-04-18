@@ -133,7 +133,7 @@ class MainRunner(val config: ammonite.main.Cli.Config,
         |$imports
         |import mill._
         |object $wrapName
-        |extends mill.define.BaseModule(ammonite.ops.Path($literalPath))
+        |extends mill.define.BaseModule(ammonite.ops.Path($literalPath), x = 1)
         |with $wrapName{
         |  // Stub to make sure Ammonite has something to call after it evaluates a script,
         |  // even if it does nothing...

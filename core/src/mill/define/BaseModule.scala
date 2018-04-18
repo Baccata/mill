@@ -6,7 +6,7 @@ object BaseModule{
   case class Implicit(value: BaseModule)
 }
 
-abstract class BaseModule(millSourcePath0: Path, external0: Boolean = false)
+abstract class BaseModule(millSourcePath0: Path, external0: Boolean = false, x : Int = 0)
                          (implicit millModuleEnclosing0: sourcecode.Enclosing,
                           millModuleLine0: sourcecode.Line,
                           millName0: sourcecode.Name,

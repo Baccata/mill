@@ -10,7 +10,7 @@ object JavaCompileJarTests extends ScriptTestSuite(fork = false) {
   val tests = Tests{
     initWorkspace()
     'test - {
-      if (!ammonite.util.Util.java9OrAbove) {
+//      if (!ammonite.util.Util.java9OrAbove) {
         // Basic target evaluation works
         assert(eval("classFiles"))
         assert(eval("jar"))
@@ -63,6 +63,6 @@ object JavaCompileJarTests extends ScriptTestSuite(fork = false) {
         assert(eval("jar"))
       }
     }
-  }
+//  }
 }
 
