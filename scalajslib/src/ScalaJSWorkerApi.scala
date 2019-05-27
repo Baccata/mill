@@ -58,9 +58,11 @@ class ScalaJSWorker {
   def getFramework(toolsClasspath: Agg[os.Path],
                    config: NodeJSConfig,
                    frameworkName: String,
-                   linkedFile: File)
+                   linkedFile: File,
+                   moduleKind: ModuleKind,
+                   moduleIdentifier: String)
                   (implicit ctx: Ctx.Home): (() => Unit, sbt.testing.Framework) = {
-    bridge(toolsClasspath).getFramework(config, frameworkName, linkedFile)
+    bridge(toolsClasspath).getFramework(config, frameworkName, linkedFile, moduleKind, moduleIdentifier)
   }
 
 }

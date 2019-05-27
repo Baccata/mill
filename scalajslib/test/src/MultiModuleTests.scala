@@ -21,6 +21,7 @@ object MultiModuleTests extends TestSuite {
       override def millSourcePath = workspacePath / 'client
       override def moduleDeps = Seq(shared)
       override def mainClass = Some("Main")
+      override def moduleKind = T(ModuleKind.CommonJSModule)
       object test extends Tests {
         def testFrameworks = Seq("utest.runner.Framework")
         override def ivyDeps = Agg(ivy"com.lihaoyi::utest::0.6.3")
@@ -68,7 +69,7 @@ object MultiModuleTests extends TestSuite {
 
     'run - {
       val command = MultiModule.client.run()
-      
+
       val Right((_, evalCount)) = evaluator(command)
 
       val paths = Evaluator.resolveDestPaths(

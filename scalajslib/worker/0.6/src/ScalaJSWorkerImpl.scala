@@ -15,6 +15,12 @@ import org.scalajs.jsenv.nodejs._
 import org.scalajs.testadapter.TestAdapter
 import mill.scalajslib.api.{ModuleKind, NodeJSConfig}
 class ScalaJSWorkerImpl extends mill.scalajslib.api.ScalaJSWorkerApi {
+
+  def sjsModuleKind(moduleKind: ModuleKind) = moduleKind match {
+    case ModuleKind.NoModule => ScalaJSModuleKind.NoModule
+    case ModuleKind.CommonJSModule => ScalaJSModuleKind.CommonJSModule
+  }
+
   def link(sources: Array[File],
            libraries: Array[File],
            dest: File,
@@ -25,15 +31,11 @@ class ScalaJSWorkerImpl extends mill.scalajslib.api.ScalaJSWorkerApi {
         case true => Semantics.Defaults.optimized
         case false => Semantics.Defaults
     }
-    val scalaJSModuleKind = moduleKind match {
-      case ModuleKind.NoModule => ScalaJSModuleKind.NoModule
-      case ModuleKind.CommonJSModule => ScalaJSModuleKind.CommonJSModule
-    }
     val config = StandardLinker.Config()
       .withOptimizer(fullOpt)
       .withClosureCompilerIfAvailable(fullOpt)
       .withSemantics(semantics)
-      .withModuleKind(scalaJSModuleKind)
+      .withModuleKind(sjsModuleKind(moduleKind))
     val linker = StandardLinker(config)
     val sourceSJSIRs = sources.map(new FileVirtualScalaJSIRFile(_))
     val jars = libraries.map(jar => IRContainer.Jar(new FileVirtualBinaryFile(jar) with VirtualJarFile))
@@ -57,12 +59,22 @@ class ScalaJSWorkerImpl extends mill.scalajslib.api.ScalaJSWorkerApi {
 
   def getFramework(config: NodeJSConfig,
                    frameworkName: String,
-                   linkedFile: File): (() => Unit, sbt.testing.Framework) = {
+                   linkedFile: File,
+                   moduleKind: ModuleKind,
+                   moduleIdentifier: String): (() => Unit, sbt.testing.Framework) = {
     val env = nodeJSEnv(config).loadLibs(
       Seq(ResolvedJSDependency.minimal(new FileVirtualJSFile(linkedFile)))
     )
 
-    val tconfig = TestAdapter.Config().withLogger(new ScalaConsoleLogger)
+    val identifier = moduleKind match {
+      case ModuleKind.CommonJSModule => Some(moduleIdentifier)
+      case ModuleKind.NoModule => None
+    }
+
+    val tconfig = TestAdapter.Config()
+      .withLogger(new ScalaConsoleLogger)
+      .withModuleSettings(sjsModuleKind(moduleKind), identifier)
+
     val adapter =
       new TestAdapter(env, tconfig)
 

@@ -13,6 +13,12 @@ import org.scalajs.jsenv.nodejs._
 import org.scalajs.testadapter.TestAdapter
 
 class ScalaJSWorkerImpl extends mill.scalajslib.api.ScalaJSWorkerApi {
+
+  def sjsModuleKind(moduleKind: ModuleKind) = moduleKind match {
+    case ModuleKind.NoModule => ScalaJSModuleKind.NoModule
+    case ModuleKind.CommonJSModule => ScalaJSModuleKind.CommonJSModule
+  }
+
   def link(sources: Array[File],
            libraries: Array[File],
            dest: File,
@@ -23,15 +29,11 @@ class ScalaJSWorkerImpl extends mill.scalajslib.api.ScalaJSWorkerApi {
         case true => Semantics.Defaults.optimized
         case false => Semantics.Defaults
     }
-    val scalaJSModuleKind = moduleKind match {
-      case ModuleKind.NoModule => ScalaJSModuleKind.NoModule
-      case ModuleKind.CommonJSModule => ScalaJSModuleKind.CommonJSModule
-    }
     val config = StandardLinker.Config()
       .withOptimizer(fullOpt)
       .withClosureCompilerIfAvailable(fullOpt)
       .withSemantics(semantics)
-      .withModuleKind(scalaJSModuleKind)
+      .withModuleKind(sjsModuleKind(moduleKind))
     val linker = StandardLinker(config)
     val cache = new IRFileCache().newCache
     val sourceIRs = sources.map(FileVirtualScalaJSIRFile)
@@ -57,9 +59,19 @@ class ScalaJSWorkerImpl extends mill.scalajslib.api.ScalaJSWorkerApi {
 
   def getFramework(config: NodeJSConfig,
                    frameworkName: String,
-                   linkedFile: File): (() => Unit, sbt.testing.Framework) = {
+                   linkedFile: File,
+                   moduleKind: ModuleKind,
+                   moduleIdentifier: String): (() => Unit, sbt.testing.Framework) = {
     val env = nodeJSEnv(config)
-    val tconfig = TestAdapter.Config().withLogger(new ScalaConsoleLogger)
+
+    val identifier = moduleKind match {
+      case ModuleKind.CommonJSModule => Some(moduleIdentifier)
+      case ModuleKind.NoModule => None
+    }
+
+    val tconfig = TestAdapter.Config()
+      .withLogger(new ScalaConsoleLogger)
+      .withModuleSettings(sjsModuleKind(moduleKind), identifier)
 
     val adapter =
       new TestAdapter(env, Seq(FileVirtualJSFile(linkedFile)), tconfig)
